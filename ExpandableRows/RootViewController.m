@@ -10,7 +10,7 @@
 
 @synthesize firstArray,secondArray;
 @synthesize firstForTable,secondForTable;
-
+@synthesize rowsPerSection;
 
 - (void)viewDidLoad
 {
@@ -24,7 +24,7 @@
 	self.firstArray=[dTmp valueForKey:@"Objects"];
     self.secondArray=[dTmp2 valueForKey:@"Objects"];
 	
-	
+	self.rowsPerSection = [[NSMutableArray alloc] init];
 	self.firstForTable=[[NSMutableArray alloc] init] ;
 	[self.firstForTable addObjectsFromArray:self.firstArray];
     
@@ -77,13 +77,16 @@
     switch (section) {
         case 0:
             rows = [self.firstForTable count];
+            [self.rowsPerSection addObject:[NSNumber numberWithInteger:rows]];
             break;
         case 1:
             rows = [self.secondForTable count];
+            [self.rowsPerSection addObject:[NSNumber numberWithInteger:rows]];
             break;
-        
+            
             
     }
+    
     return rows;
 }
 
@@ -106,7 +109,7 @@
         case 1:
             testo = @"Second Section";
             break;
-        
+            
     }
     
     return testo;
@@ -120,7 +123,6 @@
 - (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath
 {
     static NSString *CellIdentifier = @"Cell";
-    
     UITableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:CellIdentifier];
     if (cell == nil) {
         cell = [[UITableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:CellIdentifier] ;
@@ -146,6 +148,9 @@
 	[tableView deselectRowAtIndexPath:indexPath animated:YES];
 	
     if (indexPath.section==0) {
+        
+        NSInteger totalRows = [self.firstForTable count];
+        
         NSDictionary *d=[self.firstForTable objectAtIndex:indexPath.row];
         if([d valueForKey:@"Objects"]) {
             NSArray *ar=[d valueForKey:@"Objects"];
@@ -169,15 +174,33 @@
                 }
                 [tableView insertRowsAtIndexPaths:arCells withRowAnimation:UITableViewRowAnimationLeft];
             }
-        }else
-        {
+        } else {
             NSLog(@"Leave Element:::%@ %@|",[d valueForKey:@"name"],[d valueForKey:@"book"]);
+        }
+        
+        
+        if (indexPath.row == 0 && [self.firstForTable count] > [[self.rowsPerSection objectAtIndex:indexPath.section] integerValue]){
+            NSDictionary *d_ = [self.firstForTable objectAtIndex:3];
+            NSArray *ar_ = [d_ valueForKey:@"Objects"];
+            [self miniMizeFirstsRows:ar_];
+        } else if(indexPath.row + 1 == totalRows){
+            NSDictionary *d_ = [self.firstForTable objectAtIndex:0];
+            NSArray *ar_ = [d_ valueForKey:@"Objects"];
+            [self miniMizeFirstsRows:ar_];
+        }
+        
+        for (int i=0; i < [[self.rowsPerSection objectAtIndex:indexPath.section] integerValue]; i++) {
+            NSDictionary *d_ = [self.secondForTable objectAtIndex:i];
+            NSArray *ar_ = [d_ valueForKey:@"Objects"];
+            [self miniMizeSecondsRows:ar_];
         }
     }
     
     
-    
     if (indexPath.section==1) {
+        
+        
+        NSInteger totalRows = [self.secondForTable count];
         
         NSDictionary *d=[self.secondForTable objectAtIndex:indexPath.row];
         if([d valueForKey:@"Objects"]) {
@@ -194,6 +217,7 @@
             if(isAlreadyInserted) {
                 [self miniMizeSecondsRows:ar];
             } else {
+                
                 NSUInteger count=indexPath.row+1;
                 NSMutableArray *arCells=[NSMutableArray array];
                 for(NSDictionary *dInner in ar ) {
@@ -206,6 +230,22 @@
         {
             NSLog(@"Leave Element:::%@ %@|",[d valueForKey:@"name"],[d valueForKey:@"book"]);
         }
+        
+        if (indexPath.row == 0 && [self.secondForTable count] > [[self.rowsPerSection objectAtIndex:indexPath.section] integerValue]){
+            NSDictionary *d_ = [self.secondForTable objectAtIndex:3];
+            NSArray *ar_ = [d_ valueForKey:@"Objects"];
+            [self miniMizeSecondsRows:ar_];
+        } else if(indexPath.row + 1 == totalRows){
+            NSDictionary *d_ = [self.secondForTable objectAtIndex:0];
+            NSArray *ar_ = [d_ valueForKey:@"Objects"];
+            [self miniMizeSecondsRows:ar_];
+        }
+        
+        for (int i=0; i < [[self.rowsPerSection objectAtIndex:indexPath.section] integerValue]; i++) {
+            NSDictionary *d_ = [self.firstForTable objectAtIndex:i];
+            NSArray *ar_ = [d_ valueForKey:@"Objects"];
+            [self miniMizeFirstsRows:ar_];
+        }
     }
     
 	
@@ -214,7 +254,7 @@
 -(void)miniMizeFirstsRows:(NSArray*)ar{
 	
 	for(NSDictionary *dInner in ar ) {
-		NSUInteger indexToRemove=[self.firstForTable indexOfObjectIdenticalTo:dInner];		
+		NSUInteger indexToRemove=[self.firstForTable indexOfObjectIdenticalTo:dInner];
 		NSArray *arInner=[dInner valueForKey:@"Objects"];
 		if(arInner && [arInner count]>0){
 			[self miniMizeFirstsRows:arInner];
@@ -223,9 +263,9 @@
 		if([self.firstForTable indexOfObjectIdenticalTo:dInner]!=NSNotFound) {
 			[self.firstForTable removeObjectIdenticalTo:dInner];
 			[self.tableView deleteRowsAtIndexPaths:[NSArray arrayWithObject:
-												[NSIndexPath indexPathForRow:indexToRemove inSection:0]
-												]
-							  withRowAnimation:UITableViewRowAnimationFade];
+                                                    [NSIndexPath indexPathForRow:indexToRemove inSection:0]
+                                                    ]
+                                  withRowAnimation:UITableViewRowAnimationFade];
 		}
 	}
 }

@@ -16,6 +16,7 @@
 
 @property (nonatomic, retain) NSMutableArray *firstForTable;
 @property (nonatomic, retain) NSMutableArray *secondForTable;
+@property (nonatomic, retain) NSMutableArray *rowsPerSection;
 
 -(void)miniMizeFirstsRows:(NSArray*)ar;
 -(void)miniMizeSecondsRows:(NSArray*)ar;
