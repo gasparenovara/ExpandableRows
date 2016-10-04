@@ -13,12 +13,11 @@
 @property (nonatomic, retain) NSArray *firstArray;
 @property (nonatomic, retain) NSArray *secondArray;
 
-
 @property (nonatomic, retain) NSMutableArray *firstForTable;
 @property (nonatomic, retain) NSMutableArray *secondForTable;
 @property (nonatomic, retain) NSMutableArray *rowsPerSection;
 
--(void)miniMizeFirstsRows:(NSArray*)ar;
--(void)miniMizeSecondsRows:(NSArray*)ar;
+- (void)minimizeFirstsRows:(NSArray*)ar;
+- (void)minimizeSecondsRows:(NSArray*)ar;
 
 @end
